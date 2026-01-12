@@ -24,9 +24,7 @@ export default function Cardlist() {
         fetchProductos();
     }, []);
 
-    if (loading) return <div className="flex justify-center items-center h-screen">Cargando...</div>;
-    if (error) return <div className="flex justify-center items-center h-screen text-red-500">{error}</div>;
-
+    
     return (
         <div className='bg-gray-200 min-h-screen flex  justify-center items-start  gap-5 flex-wrap p-4 flexbox'>
             {Productos.map((producto) => (
@@ -57,6 +55,7 @@ export default function Cardlist() {
                     </button>
                 </div>
             ))}
+            
         </div>
     );
 }
