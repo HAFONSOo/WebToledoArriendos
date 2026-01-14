@@ -1,0 +1,17 @@
+.nav-item {
+  position: absolute;
+  left: 75% ;
+   z-index: 1; 
+}
+.toledo-arriendos {
+  font-size: 24px;
+  font-weight: bold;
+
+}
+.quebuscas {
+  font-size: 20px;
+  margin-right: 20px;
+ width: 300px;
+  padding: 5px;
+  
+}
