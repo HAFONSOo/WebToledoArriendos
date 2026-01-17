@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import type { Productos } from "./card.type";
 import { getProductos } from "../services/weback";
 
@@ -54,11 +55,11 @@ const NavBar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           
           {/* Logo */}
-          <div className="flex-shrink-0">
+          <Link to="/" className="flex-shrink-0">
             <h1 className="text-xl sm:text-2xl font-bold whitespace-nowrap cursor-pointer hover:text-purple-200 transition-colors">
               Toledo Arriendos
             </h1>
-          </div>
+          </Link>
 
           {/* Buscador - Desktop */}
           <div className="hidden md:flex flex-1 max-w-md mx-4 relative bg-white rounded-lg shadow-sm">
@@ -73,7 +74,7 @@ const NavBar: React.FC = () => {
               />
               {loading && (
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div className="animate-spin h-5 w-5 border-2 border-purple-500 border-t-transparent rounded-full"></div>
+                  <div className="animate-spin h-5 w-5 border-2 border-gray-500 border-t-transparent rounded-full"></div>
                 </div>
               )}
             </div>
@@ -124,18 +125,18 @@ const NavBar: React.FC = () => {
 
           {/* Links de navegación - Desktop */}
           <div className="hidden md:flex items-center gap-6">
-            <a 
-              href="#catalogo" 
+            <Link 
+              to="/" 
               className="hover:text-purple-200 transition-colors font-medium"
             >
               Catálogo
-            </a>
-            <a 
-              href="#contacto" 
+            </Link>
+            <Link 
+              to="/contacto" 
               className="hover:text-purple-200 transition-colors font-medium"
             >
               Contacto
-            </a>
+            </Link>
             <a 
               href="#feedback" 
               className="hover:text-purple-200 transition-colors font-medium"
@@ -189,7 +190,7 @@ const NavBar: React.FC = () => {
                   value={query}
                   onChange={handleSearch}
                   placeholder="¿Qué buscas?"
-                  className="w-full px-4 py-2 pr-10 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                  className="w-full px-4 py-2 pr-10 rounded-lg text-gray-800 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-300"
                   disabled={loading}
                 />
                 {loading && (
@@ -239,20 +240,20 @@ const NavBar: React.FC = () => {
 
             {/* Links móvil */}
             <div className="flex flex-col space-y-2 pt-2">
-              <a 
-                href="#catalogo" 
+              <Link 
+                to="/" 
                 onClick={cerrarMenu}
                 className="block px-3 py-2 rounded-lg hover:bg-purple-600 transition-colors font-medium"
               >
                 Catálogo
-              </a>
-              <a 
-                href="#contacto" 
+              </Link>
+              <Link 
+                to="/contacto" 
                 onClick={cerrarMenu}
                 className="block px-3 py-2 rounded-lg hover:bg-purple-600 transition-colors font-medium"
               >
                 Contacto
-              </a>
+              </Link>
               <a 
                 href="#feedback" 
                 onClick={cerrarMenu}

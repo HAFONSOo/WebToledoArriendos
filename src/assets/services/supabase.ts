@@ -41,32 +41,49 @@ export type Database = {
     Tables: {
       Productos: {
         Row: {
-          descripcion: string | null
-          estado: boolean | null
-          id: number
-          imagenURL: string | null
-          nombre: string
-          precio: number | null
-        }
+          id: number;
+          nombre: string;
+          descripcion: string | null;
+          precio: number | null;
+          cantidad: number | null;
+          estado: boolean | null;
+          imagenURL: string | null;
+          idCategoria: number;
+        };
         Insert: {
-          descripcion?: string | null
-          estado?: boolean | null
-          id?: number
-          imagenURL?: string | null
-          nombre: string
-          precio?: number | null
-        }
+          id?: number;
+          nombre: string;
+          descripcion?: string | null;
+          precio?: number | null;
+          cantidad?: number | null;
+          estado?: boolean | null;
+          imagenURL?: string | null;
+          idCategoria: number;
+        };
         Update: {
-          descripcion?: string | null
-          estado?: boolean | null
-          id?: number
-          imagenURL?: string | null
-          nombre?: string
-          precio?: number | null
-        }
-        Relationships: []
-      }
-    }
+          nombre?: string;
+          descripcion?: string | null;
+          precio?: number | null;
+          cantidad?: number | null;
+          estado?: boolean | null;
+          imagenURL?: string | null;
+          idCategoria?: number;
+        };
+      };
+      Categoria: {
+        Row: {
+          idCategoria: number;
+          categoria: string;
+        };
+        Insert: {
+          idCategoria?: number;
+          categoria: string;
+        };
+        Update: {
+          categoria?: string;
+        };
+      };
+    };
     Views: {
       [_ in never]: never
     }
