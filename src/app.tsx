@@ -1,4 +1,4 @@
-import React from "react";
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NavBar from "./assets/componentes/nav.tsx";
 import Cardlist from "./assets/componentes/cardlist.tsx";

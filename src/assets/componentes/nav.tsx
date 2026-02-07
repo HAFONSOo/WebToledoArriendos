@@ -10,12 +10,18 @@ const NavBar: React.FC = () => {
   const [menuAbierto, setMenuAbierto] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
+    useEffect(() => {
     const fetchProductos = async () => {
       try {
         setLoading(true);
         const data = await getProductos();
-        setAllproductos(data);
+        const transformedData = data.map((producto: any) => ({
+          ...producto,
+          id: typeof producto.id === 'string' ? parseInt(producto.id, 10) : producto.id,
+          idCategoria: typeof producto.idCategoria === 'string' ? parseInt(producto.idCategoria, 10) : producto.idCategoria,
+          estado: producto.estado === 'true' || producto.estado === true
+        }));
+        setAllproductos(transformedData as Productos[]);
       } catch (error) {
         console.error('Error al cargar productos:', error);
       } finally {

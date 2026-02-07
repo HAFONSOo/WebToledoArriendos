@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import type { Productos } from "./card.type";
 import { getProductos } from "../services/weback";
 
@@ -15,7 +15,13 @@ export default function Cardlist() {
             setError(null);
             const data = await getProductos();
            
-            setProductos(data  || []);
+            const transformedData = (data || []).map(producto => ({
+                ...producto,
+                id: typeof producto.id === 'string' ? parseInt(producto.id, 10) : producto.id,
+                idCategoria: typeof producto.idCategoria === 'string' ? parseInt(producto.idCategoria, 10) : producto.idCategoria,
+                estado: typeof producto.estado === 'string' ? producto.estado === "true" : !!producto.estado
+            }));
+            setProductos(transformedData as Productos[]);
         } catch (err) {
             console.error("Error completo:", err);
             setError("Error al cargar los productos");
