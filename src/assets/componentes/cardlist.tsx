@@ -213,11 +213,7 @@ export default function Cardlist() {
                                 </div>
 
                                 <h2 className="text-base text-gray-700 mb-3">{producto.descripcion}</h2>
-                                <p className="text-lg text-gray-800 mb-3">
-                                    Stock: <span className={`font-bold ${(producto.cantidad ?? 0) === 0 ? 'text-red-500' : (producto.cantidad ?? 0) <= 3 ? 'text-orange-500' : 'text-green-600'}`}>
-                                        {producto.cantidad ?? 0} unidades
-                                    </span>
-                                </p>
+                                
                                 <p className="text-lg text-gray-800 mb-3 font-bold">${producto.precio} x día</p>
                                 
                                 <button 
