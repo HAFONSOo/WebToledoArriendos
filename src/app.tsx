@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NavBar from "./assets/componentes/nav.tsx";
 import Cardlist from "./assets/componentes/cardlist.tsx";
 import Contacto from "./assets/componentes/contacto.tsx";
-
+import ProductoDetalle from "./assets/componentes/ProductoDetalle.tsx";
 const App = () => {
   return (
     <BrowserRouter>
@@ -18,6 +18,9 @@ const App = () => {
           
           {/* Ruta de contacto */}
           <Route path="/contacto" element={<Contacto />} />
+          
+          {/* Ruta para detalle de producto */}
+          <Route path="/producto/:id" element={<ProductoDetalle />} />
           
           {/* Ruta para catálogo explícito */}
           <Route path="/catalogo" element={<Cardlist />} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import type { Productos } from "./card.type";
+// 1. Importamos useNavigate
+import { Link, useNavigate } from "react-router-dom"; 
+import type { Productos } from "./card.type"; // Ajusta si tu interfaz se llama "Producto" o "Productos"
 import { getProductos } from "../services/weback";
 
 const NavBar: React.FC = () => {
@@ -9,15 +10,19 @@ const NavBar: React.FC = () => {
   const [allproductos, setAllproductos] = useState<Productos[]>([]);
   const [menuAbierto, setMenuAbierto] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  
+  // 2. Inicializamos useNavigate
+  const navigate = useNavigate();
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchProductos = async () => {
       try {
         setLoading(true);
         const data = await getProductos();
         const transformedData = data.map((producto: any) => ({
           ...producto,
-          id: typeof producto.id === 'string' ? parseInt(producto.id, 10) : producto.id,
+          // Mantenemos el id como string para que coincida con tu interfaz
+          id: String(producto.id), 
           idCategoria: typeof producto.idCategoria === 'string' ? parseInt(producto.idCategoria, 10) : producto.idCategoria,
           estado: producto.estado === 'true' || producto.estado === true
         }));
@@ -45,10 +50,12 @@ const NavBar: React.FC = () => {
     }
   };
 
+  // 3. Actualizamos la función de clic para navegar
   const handleProductoClick = (producto: Productos) => {
-    setQuery(producto.nombre);
-    setFiltroProductos([]);
-    // Aquí puedes agregar navegación o scroll al producto
+    setQuery(''); // Limpiamos el buscador en lugar de dejar el nombre
+    setFiltroProductos([]); // Ocultamos los resultados
+    setMenuAbierto(false); // Cerramos el menú móvil por si acaso
+    navigate(`/producto/${producto.id}`); // Navegamos a la vista de detalle
   };
 
   const cerrarMenu = () => {
@@ -211,10 +218,7 @@ const NavBar: React.FC = () => {
                   {filtroProductos.map((producto) => (
                     <li 
                       key={producto.id}
-                      onClick={() => {
-                        handleProductoClick(producto);
-                        cerrarMenu();
-                      }}
+                      onClick={() => handleProductoClick(producto)}
                       className="px-4 py-3 hover:bg-purple-50 cursor-pointer border-b last:border-b-0 transition-colors"
                     >
                       <div className="flex items-center gap-3">

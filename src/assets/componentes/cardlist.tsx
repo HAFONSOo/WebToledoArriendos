@@ -1,6 +1,7 @@
 import  { useEffect, useState } from "react";
 import type { Productos } from "./card.type";
 import { getProductos } from "../services/weback";
+import { Link } from "react-router-dom";
 
 export default function Cardlist() {
     const [productos, setProductos] = useState<Productos[]>([]);
@@ -199,58 +200,59 @@ export default function Cardlist() {
                         </button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {productosFiltrados.map((producto) => (
-                            <div 
-                                key={producto.id} 
-                                className="w-full max-w-sm mx-auto p-4 bg-white rounded-xl transform transition-all hover:-translate-y-2 duration-300 shadow-lg hover:shadow-2xl min-h-[450px] flex flex-col"
-                            >
-                                <div className="flex flex-col items-center justify-center">
-                                    {/* Badge de stock */}
-                                    <div className="relative w-full">
-                                        <img 
-                                            src={producto.imagenURL || '/placeholder.png'} 
-                                            className="h-70 w-full object-fill rounded-xl mb-4" 
-                                            alt={producto.nombre}
-                                            onError={(e) => {
-                                                e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
-                                            }}
-                                        />
-                                        {(producto.cantidad ?? 0) === 0 && (
-                                            <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                                                AGOTADO
-                                            </div>
-                                        )}
-                                        
-                                    </div>
-                                    
-                                    <h1 className="font-bold text-xl mb-3 text-center">{producto.nombre}</h1>
-                                    
-                                    {/* Badge de categoría en la tarjeta */}
-                                    {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
-                                        <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full font-medium mb-2">
-                                            {producto.categoriaNombre}
-                                        </span>
-                                    )}
-                                </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {productosFiltrados.map((producto) => (
+        /* Envolvemos la tarjeta en un Link */
+        <Link 
+            to={`/producto/${producto.id}`} 
+            key={producto.id} 
+            className="w-full max-w-sm mx-auto p-4 bg-white rounded-xl transform transition-all hover:-translate-y-2 duration-300 shadow-lg hover:shadow-2xl min-h-[450px] flex flex-col cursor-pointer block"
+        >
+            <div className="flex flex-col items-center justify-center">
+                {/* Badge de stock */}
+                <div className="relative w-full">
+                    <img 
+                        src={producto.imagenURL || '/placeholder.png'} 
+                        className="h-70 w-full object-fill rounded-xl mb-4" 
+                        alt={producto.nombre}
+                        onError={(e) => {
+                            e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+                        }}
+                    />
+                    {(producto.cantidad ?? 0) === 0 && (
+                        <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                            AGOTADO
+                        </div>
+                    )}
+                </div>
+                
+                <h1 className="font-bold text-xl mb-3 text-center">{producto.nombre}</h1>
+                
+                {/* Badge de categoría */}
+                {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full font-medium mb-2">
+                        {producto.categoriaNombre}
+                    </span>
+                )}
+            </div>
 
-                                <h2 className="text-base text-gray-700 mb-3">{producto.descripcion}</h2>
-                                
-                                <p className="text-lg text-gray-800 mb-3 font-bold">${producto.precio} x día</p>
-                                
-                                <button 
-                                    className={`w-full px-2 py-3 rounded-lg font-semibold text-base mt-auto transition-colors ${
-                                        producto.estado && (producto.cantidad ?? 0) > 0
-                                            ? 'bg-green-500 text-white hover:bg-green-600' 
-                                            : 'bg-gray-400 text-gray-700 cursor-not-allowed'
-                                    }`}
-                                    disabled={!producto.estado || (producto.cantidad ?? 0) === 0}
-                                >
-                                    {(producto.cantidad ?? 0) === 0 ? 'Agotado' : producto.estado ? 'Disponible' : 'No Disponible'}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+            <h2 className="text-base text-gray-700 mb-3">{producto.descripcion}</h2>
+            
+            <p className="text-lg text-gray-800 mb-3 font-bold">${producto.precio} x día</p>
+            
+            {/* Cambiamos el <button> por un <div> para no anidar elementos interactivos dentro del <Link> */}
+            <div 
+                className={`w-full text-center px-2 py-3 rounded-lg font-semibold text-base mt-auto transition-colors ${
+                    producto.estado && (producto.cantidad ?? 0) > 0
+                        ? 'bg-green-500 text-white' 
+                        : 'bg-gray-400 text-gray-700'
+                }`}
+            >
+                {(producto.cantidad ?? 0) === 0 ? 'Agotado' : producto.estado ? 'Ver Detalles' : 'No Disponible'}
+            </div>
+        </Link>
+    ))}
+</div>
                 )}
             </div>
         </div>
