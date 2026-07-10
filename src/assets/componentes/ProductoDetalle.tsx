@@ -20,10 +20,15 @@ export default function ProductoDetalle() {
                 const productoEncontrado = data.find((p: any) => String(p.id) === String(id));
 
                 if (productoEncontrado) {
+                    const estadoBooleano = typeof productoEncontrado.estado === 'boolean'
+                        ? productoEncontrado.estado
+                        : String(productoEncontrado.estado).toLowerCase() === 'true';
+
                     const productoFormateado: Productos = {
                         ...productoEncontrado,
                         id: Number(productoEncontrado.id),
-                        estado: productoEncontrado.estado === 'true' || productoEncontrado.estado === true
+                        idCategoria: Number(productoEncontrado.idCategoria),
+                        estado: estadoBooleano
                     };
                     setProducto(productoFormateado);
                 } else {
