@@ -105,7 +105,7 @@ const NavBar: React.FC = () => {
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{producto.nombre}</p>
                         {producto.precio && (
-                          <p className="text-sm text-gray-600">${producto.precio} x día</p>
+                          <p className="text-sm text-gray-600">${producto.precio} diario</p>
                         )}
                       </div>
                       <span className={`px-2 py-1 text-xs rounded-full ${
@@ -228,7 +228,7 @@ const NavBar: React.FC = () => {
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 text-sm">{producto.nombre}</p>
                           {producto.precio && (
-                            <p className="text-xs text-gray-600">${producto.precio} x día</p>
+                            <p className="text-xs text-gray-600">${producto.precio} diario</p>
                           )}
                         </div>
                       </div>

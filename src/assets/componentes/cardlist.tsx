@@ -6,15 +6,19 @@ export default function Cardlist() {
     const [productos, setProductos] = useState<Productos[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    
+    // Estados de filtros y orden
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string>("todas");
     const [filtroDisponibilidad, setFiltroDisponibilidad] = useState<string>("todos");
+    // MODIFICADO: El estado inicial ahora es 'mayor-menor'
+    const [ordenPrecio, setOrdenPrecio] = useState<string>("mayor-menor"); 
 
     async function fetchProductos() {
         try {
             setLoading(true);
             setError(null);
             const data = await getProductos();
-           
+            
             const transformedData = (data || []).map(producto => ({
                 ...producto,
                 id: typeof producto.id === 'string' ? parseInt(producto.id, 10) : producto.id,
@@ -41,8 +45,8 @@ export default function Cardlist() {
             .filter((cat): cat is string => cat !== null && cat !== undefined && cat !== "" && cat !== "Sin categoría")
     )];
 
-    // Filtrar productos por categoría y disponibilidad
-    const productosFiltrados = productos.filter(producto => {
+    // 1. Filtrar productos por categoría y disponibilidad
+    let productosFiltrados = productos.filter(producto => {
         // Filtro por categoría
         const categoriaProducto = producto.categoriaNombre || "";
         const cumpleCategoria = categoriaSeleccionada === "todas" || categoriaProducto === categoriaSeleccionada;
@@ -58,6 +62,13 @@ export default function Cardlist() {
         
         return cumpleCategoria && cumpleDisponibilidad;
     });
+
+    // 2. Ordenar los productos filtrados por precio
+    if (ordenPrecio === "mayor-menor") {
+        productosFiltrados.sort((a, b) => Number(b.precio || 0) - Number(a.precio || 0));
+    } else if (ordenPrecio === "menor-mayor") {
+        productosFiltrados.sort((a, b) => Number(a.precio || 0) - Number(b.precio || 0));
+    }
 
     if (loading) {
         return (
@@ -101,25 +112,24 @@ export default function Cardlist() {
             <div className="max-w-[1400px] mx-auto">
                 {/* Barra de filtros */}
                 <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                         <h2 className="text-2xl font-bold text-gray-800">
                             Productos
                         </h2>
                         
                         <div className="flex flex-wrap items-center gap-4">
-                            {/* Filtro por categoría */}
+                            
+                            {/* Selector de Orden de Precio */}
                             <div className="flex items-center gap-2">
-                                <label className="text-gray-700 font-medium text-sm">Categoría:</label>
+                                <label className="text-gray-700 font-medium text-sm">Ordenar por:</label>
                                 <select 
-                                    value={categoriaSeleccionada}
-                                    onChange={(e) => setCategoriaSeleccionada(e.target.value)}
+                                    value={ordenPrecio}
+                                    onChange={(e) => setOrdenPrecio(e.target.value)}
                                     className="px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer"
                                 >
-                                    {categorias.map((categoria) => (
-                                        <option key={categoria} value={categoria}>
-                                            {categoria === "todas" ? "Todas" : categoria}
-                                        </option>
-                                    ))}
+                                    <option value="mayor-menor">Precio: Mayor a menor</option>
+                                    <option value="menor-mayor">Precio: Menor a mayor</option>
+                                  
                                 </select>
                             </div>
 
@@ -137,12 +147,13 @@ export default function Cardlist() {
                                 </select>
                             </div>
 
-                            {/* Botón para limpiar filtros */}
-                            {(categoriaSeleccionada !== "todas" || filtroDisponibilidad !== "todos") && (
+                            {/* Botón para limpiar filtros actualizado */}
+                            {(categoriaSeleccionada !== "todas" || filtroDisponibilidad !== "todos" || ordenPrecio !== "mayor-menor") && (
                                 <button
                                     onClick={() => {
                                         setCategoriaSeleccionada("todas");
                                         setFiltroDisponibilidad("todos");
+                                        setOrdenPrecio("mayor-menor"); // Vuelve al nuevo valor por defecto
                                     }}
                                     className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
                                 >
@@ -152,14 +163,24 @@ export default function Cardlist() {
                         </div>
                     </div>
 
-                    {/* Contador de resultados */}
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                        <p className="text-gray-600 text-sm">
-                            Mostrando <span className="font-bold text-purple-600">{productosFiltrados.length}</span> de <span className="font-bold">{productos.length}</span> productos
-                            {categoriaSeleccionada !== "todas" && <span className="text-purple-600"> en {categoriaSeleccionada}</span>}
-                            {filtroDisponibilidad !== "todos" && <span className="text-purple-600"> ({filtroDisponibilidad})</span>}
-                        </p>
+                    {/* Categorías como Botones */}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {categorias.map((categoria) => (
+                            <button
+                                key={categoria}
+                                onClick={() => setCategoriaSeleccionada(categoria)}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                                    categoriaSeleccionada === categoria
+                                        ? "bg-purple-500 text-white shadow-md transform scale-105"
+                                        : "bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-600"
+                                }`}
+                            >
+                                {categoria === "todas" ? "Todas" : categoria}
+                            </button>
+                        ))}
                     </div>
+
+                   
                 </div>
 
                 {/* Grid de productos */}
@@ -170,6 +191,7 @@ export default function Cardlist() {
                             onClick={() => {
                                 setCategoriaSeleccionada("todas");
                                 setFiltroDisponibilidad("todos");
+                                setOrdenPrecio("mayor-menor"); // Vuelve al nuevo valor por defecto
                             }}
                             className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
                         >
@@ -188,7 +210,7 @@ export default function Cardlist() {
                                     <div className="relative w-full">
                                         <img 
                                             src={producto.imagenURL || '/placeholder.png'} 
-                                            className="h-56 w-full object-cover rounded-xl mb-3" 
+                                            className="h-70 w-full object-fill rounded-xl mb-4" 
                                             alt={producto.nombre}
                                             onError={(e) => {
                                                 e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
@@ -204,7 +226,7 @@ export default function Cardlist() {
                                     
                                     <h1 className="font-bold text-xl mb-3 text-center">{producto.nombre}</h1>
                                     
-                                    {/* Badge de categoría */}
+                                    {/* Badge de categoría en la tarjeta */}
                                     {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
                                         <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full font-medium mb-2">
                                             {producto.categoriaNombre}
