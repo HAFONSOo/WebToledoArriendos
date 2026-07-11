@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Productos } from "./card.type";
 import { getProductos } from "../services/weback";
 import { Link } from "react-router-dom";
@@ -7,19 +7,19 @@ export default function Cardlist() {
     const [productos, setProductos] = useState<Productos[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    
+
     // Estados de filtros y orden
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string>("todas");
     const [filtroDisponibilidad, setFiltroDisponibilidad] = useState<string>("todos");
     // MODIFICADO: El estado inicial ahora es 'mayor-menor'
-    const [ordenPrecio, setOrdenPrecio] = useState<string>("mayor-menor"); 
+    const [ordenPrecio, setOrdenPrecio] = useState<string>("mayor-menor");
 
     async function fetchProductos() {
         try {
             setLoading(true);
             setError(null);
             const data = await getProductos();
-            
+
             const transformedData = (data || []).map(producto => ({
                 ...producto,
                 id: typeof producto.id === 'string' ? parseInt(producto.id, 10) : producto.id,
@@ -51,7 +51,7 @@ export default function Cardlist() {
         // Filtro por categoría
         const categoriaProducto = producto.categoriaNombre || "";
         const cumpleCategoria = categoriaSeleccionada === "todas" || categoriaProducto === categoriaSeleccionada;
-        
+
         // Filtro por disponibilidad
         let cumpleDisponibilidad = true;
         const cantidadProducto = producto.cantidad ?? 0;
@@ -60,7 +60,7 @@ export default function Cardlist() {
         } else if (filtroDisponibilidad === "agotados") {
             cumpleDisponibilidad = cantidadProducto === 0;
         }
-        
+
         return cumpleCategoria && cumpleDisponibilidad;
     });
 
@@ -71,12 +71,19 @@ export default function Cardlist() {
         productosFiltrados.sort((a, b) => Number(a.precio || 0) - Number(b.precio || 0));
     }
 
+    const huboFiltros = categoriaSeleccionada !== "todas" || filtroDisponibilidad !== "todos" || ordenPrecio !== "mayor-menor";
+    const limpiarFiltros = () => {
+        setCategoriaSeleccionada("todas");
+        setFiltroDisponibilidad("todos");
+        setOrdenPrecio("mayor-menor");
+    };
+
     if (loading) {
         return (
-            <div className="bg-gray-200 min-h-screen flex justify-center items-center">
+            <div className="bg-industrial-bg min-h-screen flex justify-center items-center font-sans">
                 <div className="text-center">
-                    <div className="animate-spin h-12 w-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                    <p className="text-gray-600">Cargando productos...</p>
+                    <div className="animate-spin h-12 w-12 border-4 border-industrial-ink border-t-industrial-yellow rounded-full mx-auto mb-4"></div>
+                    <p className="font-mono text-xs uppercase tracking-[0.3em] text-industrial-ink/60">Cargando catálogo…</p>
                 </div>
             </div>
         );
@@ -84,12 +91,13 @@ export default function Cardlist() {
 
     if (error) {
         return (
-            <div className="bg-gray-200 min-h-screen flex justify-center items-center">
-                <div className="text-center bg-white p-8 rounded-lg shadow-lg">
-                    <p className="text-red-500 mb-4">{error}</p>
-                    <button 
+            <div className="bg-industrial-bg min-h-screen flex justify-center items-center font-sans p-6">
+                <div className="text-center bg-white border-2 border-industrial-ink/15 p-8 max-w-sm">
+                    <p className="font-mono text-xs uppercase tracking-[0.25em] text-industrial-red mb-3">Error de carga</p>
+                    <p className="text-industrial-ink mb-6">{error}</p>
+                    <button
                         onClick={fetchProductos}
-                        className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                        className="px-6 py-3 bg-industrial-ink text-white font-bold uppercase tracking-wider text-sm hover:bg-industrial-yellow hover:text-industrial-ink transition-colors"
                     >
                         Reintentar
                     </button>
@@ -100,47 +108,58 @@ export default function Cardlist() {
 
     if (productos.length === 0) {
         return (
-            <div className="bg-gray-200 min-h-screen flex justify-center items-center">
-                <div className="text-center bg-white p-8 rounded-lg shadow-lg">
-                    <p className="text-gray-600">No hay productos disponibles</p>
+            <div className="bg-industrial-bg min-h-screen flex justify-center items-center font-sans p-6">
+                <div className="text-center bg-white border-2 border-industrial-ink/15 p-8">
+                    <p className="text-industrial-ink/60">No hay productos disponibles</p>
                 </div>
             </div>
         );
     }
-    
-    return ( 
-        <div className="bg-gray-200 min-h-screen p-6">
-            <div className="max-w-[1400px] mx-auto">
+
+    return (
+        <div className="bg-industrial-bg min-h-screen font-sans text-industrial-ink">
+            <div className="max-w-[1400px] mx-auto p-6">
+
+                {/* Encabezado */}
+                <div className="flex items-end justify-between mb-6 gap-4 flex-wrap">
+                    <div>
+                        <span className="font-mono text-xs uppercase tracking-[0.3em] text-industrial-yellow bg-industrial-ink inline-block px-3 py-1 mb-3">
+                            Catálogo de arriendo
+                        </span>
+                        <h1 className="font-display text-4xl md:text-5xl uppercase leading-none">
+                            Equipos disponibles
+                        </h1>
+                    </div>
+                    <span className="font-mono text-xs uppercase tracking-[0.2em] text-industrial-ink/40">
+                        {productosFiltrados.length} de {productos.length} equipos
+                    </span>
+                </div>
+
                 {/* Barra de filtros */}
-                <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+                <div className="bg-white border-2 border-industrial-ink/15 p-5 mb-8">
                     <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                        <h2 className="text-2xl font-bold text-gray-800">
-                            Productos
-                        </h2>
-                        
                         <div className="flex flex-wrap items-center gap-4">
-                            
+
                             {/* Selector de Orden de Precio */}
                             <div className="flex items-center gap-2">
-                                <label className="text-gray-700 font-medium text-sm">Ordenar por:</label>
-                                <select 
+                                <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-industrial-ink/50">Ordenar</label>
+                                <select
                                     value={ordenPrecio}
                                     onChange={(e) => setOrdenPrecio(e.target.value)}
-                                    className="px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer"
+                                    className="px-4 py-2 border-2 border-industrial-ink/15 bg-white text-industrial-ink font-semibold text-sm hover:border-industrial-yellow focus:outline-none focus:ring-2 focus:ring-industrial-yellow focus:border-transparent transition-all cursor-pointer"
                                 >
-                                    <option value="mayor-menor">Precio: Mayor a menor</option>
-                                    <option value="menor-mayor">Precio: Menor a mayor</option>
-                                  
+                                    <option value="mayor-menor">Precio: mayor a menor</option>
+                                    <option value="menor-mayor">Precio: menor a mayor</option>
                                 </select>
                             </div>
 
                             {/* Filtro por disponibilidad */}
                             <div className="flex items-center gap-2">
-                                <label className="text-gray-700 font-medium text-sm">Disponibilidad:</label>
-                                <select 
+                                <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-industrial-ink/50">Stock</label>
+                                <select
                                     value={filtroDisponibilidad}
                                     onChange={(e) => setFiltroDisponibilidad(e.target.value)}
-                                    className="px-4 py-2 border-2 border-gray-300 rounded-lg bg-white text-gray-700 font-medium hover:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all cursor-pointer"
+                                    className="px-4 py-2 border-2 border-industrial-ink/15 bg-white text-industrial-ink font-semibold text-sm hover:border-industrial-yellow focus:outline-none focus:ring-2 focus:ring-industrial-yellow focus:border-transparent transition-all cursor-pointer"
                                 >
                                     <option value="todos">Todos</option>
                                     <option value="disponibles">Con stock</option>
@@ -148,15 +167,10 @@ export default function Cardlist() {
                                 </select>
                             </div>
 
-                            {/* Botón para limpiar filtros actualizado */}
-                            {(categoriaSeleccionada !== "todas" || filtroDisponibilidad !== "todos" || ordenPrecio !== "mayor-menor") && (
+                            {huboFiltros && (
                                 <button
-                                    onClick={() => {
-                                        setCategoriaSeleccionada("todas");
-                                        setFiltroDisponibilidad("todos");
-                                        setOrdenPrecio("mayor-menor"); // Vuelve al nuevo valor por defecto
-                                    }}
-                                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
+                                    onClick={limpiarFiltros}
+                                    className="px-4 py-2 border-2 border-industrial-ink/15 text-industrial-ink/60 hover:border-industrial-ink hover:text-industrial-ink transition-colors text-sm font-semibold uppercase tracking-wide"
                                 >
                                     Limpiar filtros
                                 </button>
@@ -165,94 +179,96 @@ export default function Cardlist() {
                     </div>
 
                     {/* Categorías como Botones */}
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2 pt-4 border-t-2 border-dashed border-industrial-ink/10">
                         {categorias.map((categoria) => (
                             <button
                                 key={categoria}
                                 onClick={() => setCategoriaSeleccionada(categoria)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                                className={`px-4 py-2 text-sm font-semibold uppercase tracking-wide transition-all duration-150 border-2 ${
                                     categoriaSeleccionada === categoria
-                                        ? "bg-purple-500 text-white shadow-md transform scale-105"
-                                        : "bg-gray-100 text-gray-700 hover:bg-purple-100 hover:text-purple-600"
+                                        ? "bg-industrial-yellow text-industrial-ink border-industrial-ink"
+                                        : "bg-transparent text-industrial-ink/60 border-industrial-ink/10 hover:border-industrial-ink/40 hover:text-industrial-ink"
                                 }`}
                             >
                                 {categoria === "todas" ? "Todas" : categoria}
                             </button>
                         ))}
                     </div>
-
-                   
                 </div>
 
                 {/* Grid de productos */}
                 {productosFiltrados.length === 0 ? (
-                    <div className="text-center bg-white p-8 rounded-lg shadow-lg">
-                        <p className="text-gray-600 text-lg">No hay productos que coincidan con los filtros seleccionados</p>
+                    <div className="text-center bg-white border-2 border-industrial-ink/15 p-10">
+                        <p className="text-industrial-ink/60 text-lg mb-4">No hay productos que coincidan con los filtros seleccionados</p>
                         <button
-                            onClick={() => {
-                                setCategoriaSeleccionada("todas");
-                                setFiltroDisponibilidad("todos");
-                                setOrdenPrecio("mayor-menor"); // Vuelve al nuevo valor por defecto
-                            }}
-                            className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+                            onClick={limpiarFiltros}
+                            className="px-6 py-3 bg-industrial-ink text-white font-bold uppercase tracking-wider text-sm hover:bg-industrial-yellow hover:text-industrial-ink transition-colors"
                         >
                             Ver todos los productos
                         </button>
                     </div>
                 ) : (
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    {productosFiltrados.map((producto) => (
-        /* Envolvemos la tarjeta en un Link */
-        <Link 
-            to={`/producto/${producto.id}`} 
-            key={producto.id} 
-            className="w-full max-w-sm mx-auto p-4 bg-white rounded-xl transform transition-all hover:-translate-y-2 duration-300 shadow-lg hover:shadow-2xl min-h-[450px] flex flex-col cursor-pointer block"
-        >
-            <div className="flex flex-col items-center justify-center">
-                {/* Badge de stock */}
-                <div className="relative w-full">
-                    <img 
-                        src={producto.imagenURL || '/placeholder.png'} 
-                        className="h-70 w-full object-fill rounded-xl mb-4" 
-                        alt={producto.nombre}
-                        onError={(e) => {
-                            e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
-                        }}
-                    />
-                    {(producto.cantidad ?? 0) === 0 && (
-                        <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                            AGOTADO
-                        </div>
-                    )}
-                </div>
-                
-                <h1 className="font-bold text-xl mb-3 text-center">{producto.nombre}</h1>
-                
-                {/* Badge de categoría */}
-                {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
-                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full font-medium mb-2">
-                        {producto.categoriaNombre}
-                    </span>
-                )}
-            </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {productosFiltrados.map((producto) => {
+                            const agotado = (producto.cantidad ?? 0) === 0;
+                            const disponible = producto.estado && !agotado;
 
-            <h2 className="text-base text-gray-700 mb-3">{producto.descripcion}</h2>
-            
-            <p className="text-lg text-gray-800 mb-3 font-bold">${producto.precio} x día</p>
-            
-            {/* Cambiamos el <button> por un <div> para no anidar elementos interactivos dentro del <Link> */}
-            <div 
-                className={`w-full text-center px-2 py-3 rounded-lg font-semibold text-base mt-auto transition-colors ${
-                    producto.estado && (producto.cantidad ?? 0) > 0
-                        ? 'bg-green-500 text-white' 
-                        : 'bg-gray-400 text-gray-700'
-                }`}
-            >
-                {(producto.cantidad ?? 0) === 0 ? 'Agotado' : producto.estado ? 'Ver Detalles' : 'No Disponible'}
-            </div>
-        </Link>
-    ))}
-</div>
+                            return (
+                                <Link
+                                    to={`/producto/${producto.id}`}
+                                    key={producto.id}
+                                    className="group w-full bg-white border-2 border-industrial-ink/15 hover:border-industrial-ink transition-colors duration-200 flex flex-col cursor-pointer"
+                                >
+                                    {/* Imagen */}
+                                    <div className="relative w-full aspect-square bg-industrial-bg overflow-hidden border-b-2 border-industrial-ink/15">
+                                        <img
+                                            src={producto.imagenURL || '/placeholder.png'}
+                                            className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+                                            alt={producto.nombre}
+                                            onError={(e) => {
+                                                e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+                                            }}
+                                        />
+                                        {agotado && (
+                                            <div className="absolute top-3 right-3 bg-industrial-red text-white px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest">
+                                                Agotado
+                                            </div>
+                                        )}
+                                        {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
+                                            <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.2em] bg-industrial-ink text-white px-2 py-1">
+                                                {producto.categoriaNombre}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Info */}
+                                    <div className="p-4 flex flex-col flex-1">
+                                        <h2 className="font-display text-lg uppercase leading-tight mb-3 line-clamp-2">
+                                            {producto.nombre}
+                                        </h2>
+
+                                        <div className="flex items-baseline justify-between mb-4">
+                                            <span className="font-display text-2xl text-industrial-ink">
+                                                ${producto.precio}
+                                            </span>
+                                            <span className="font-mono text-[10px] uppercase tracking-widest text-industrial-ink/40">/ día</span>
+                                        </div>
+
+                                        <div
+                                            className={`mt-auto w-full text-center px-2 py-3 font-mono text-xs font-bold uppercase tracking-widest border-2 flex items-center justify-center gap-2 ${
+                                                disponible
+                                                    ? "bg-white text-industrial-ink border-industrial-ink group-hover:bg-industrial-yellow"
+                                                    : "bg-industrial-ink/5 text-industrial-ink/40 border-industrial-ink/10"
+                                            }`}
+                                        >
+                                            <span className={`w-2 h-2 rounded-full ${disponible ? "bg-green-500" : "bg-industrial-ink/20"}`}></span>
+                                            {agotado ? 'Agotado' : producto.estado ? 'Ver detalles' : 'No disponible'}
+                                        </div>
+                                    </div>
+                                </Link>
+                            );
+                        })}
+                    </div>
                 )}
             </div>
         </div>

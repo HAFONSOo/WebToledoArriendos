@@ -1,2 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-industrial-ink: #1A1A1A;      /* negro principal (texto, fondos oscuros) */
+  --color-industrial-bg: #F6F4EF;       /* fondo general, blanco cálido */
+  --color-industrial-yellow: #F2B705;   /* acento de seguridad / marca */
+  --color-industrial-green: #22C55E;    /* disponible */
+  --color-industrial-red: #DC2626;      /* no disponible */
+  
+  --font-display: 'Archivo Black', Inter, sans-serif;
+  --font-sans: Inter, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+ 
