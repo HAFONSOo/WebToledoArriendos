@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NavBar from "./assets/componentes/nav";
-import Cardlist from "./assets/componentes/Cardlist.tsx";
-import Contacto from "./assets/componentes/contacto.tsx";
-import ProductoDetalle from "./assets/componentes/ProductoDetalle.tsx";
-import { CartProvider } from "./assets/componentes/CartContext.tsx";
+import Cardlist from "./assets/componentes/Cardlist";
+import Contacto from "./assets/componentes/contacto";
+import ProductoDetalle from "./assets/componentes/ProductoDetalle";
+import { CartProvider } from "./assets/componentes/CartContext";
 
 const App = () => {
   return (
