@@ -12,7 +12,7 @@ export default function ProductoDetalle() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [imgLoaded, setImgLoaded] = useState(false);
-    const [cantidad, setCantidad] = useState(1);
+    const [cantidad] = useState(1);
     const [agregado, setAgregado] = useState(false);
     const { addToCart } = useCart();
 
@@ -81,7 +81,7 @@ export default function ProductoDetalle() {
     const whatsappMensaje = `Hola, quiero arrendar el equipo "${producto.nombre}" (código ${String(producto.id).padStart(4, '0')})${cantidad > 1 ? ` — cantidad: ${cantidad}` : ''}. ¿Está disponible?`;
     const whatsappLink = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(whatsappMensaje)}`;
 
-    const stock = producto.cantidad ?? Infinity;
+    
 
     const handleAgregarCarrito = () => {
         addToCart(producto, cantidad);

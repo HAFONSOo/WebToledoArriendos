@@ -14,7 +14,7 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, removeFromCart, updateCantidad, clearCart, totalPrecio } = useCart();
+  const { items, removeFromCart, clearCart, totalPrecio } = useCart();
 
   const whatsappLink = items.length > 0 ? buildWhatsappMensajeCarrito(items) : "#";
 
@@ -63,7 +63,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           ) : (
             <ul>
               {items.map(({ producto, cantidad }) => {
-                const stock = producto.cantidad ?? Infinity;
+                
                 return (
                   <li
                     key={producto.id}
