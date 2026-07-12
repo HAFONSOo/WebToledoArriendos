@@ -2,11 +2,23 @@ import { useEffect, useState } from "react";
 import type { Productos } from "./card.type";
 import { getProductos } from "../services/weback";
 import { Link } from "react-router-dom";
+// Local fallback for price formatting to avoid missing module import
+function formatPrecio(valor: number | string) {
+    const n = typeof valor === 'string' ? parseFloat(valor) : valor;
+    if (isNaN(n)) return String(valor);
+    try {
+        return n.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+    } catch {
+        return `${n}`;
+    }
+}
+import { useCart } from "./CartContext";
 
 export default function Cardlist() {
     const [productos, setProductos] = useState<Productos[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { addToCart } = useCart();
 
     // Estados de filtros y orden
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string>("todas");
@@ -214,58 +226,78 @@ export default function Cardlist() {
                             const disponible = producto.estado && !agotado;
 
                             return (
-                                <Link
-                                    to={`/producto/${producto.id}`}
+                                <div
                                     key={producto.id}
-                                    className="group w-full bg-white border-2 border-industrial-ink/15 hover:border-industrial-ink transition-colors duration-200 flex flex-col cursor-pointer"
+                                    className="group w-full bg-white border-2 border-industrial-ink/15 hover:border-industrial-ink transition-colors duration-200 flex flex-col"
                                 >
-                                    {/* Imagen */}
-                                    <div className="relative w-full aspect-square bg-industrial-bg overflow-hidden border-b-2 border-industrial-ink/15">
-                                        <img
-                                            src={producto.imagenURL || '/placeholder.png'}
-                                            className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
-                                            alt={producto.nombre}
-                                            onError={(e) => {
-                                                e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
-                                            }}
-                                        />
-                                        {agotado && (
-                                            <div className="absolute top-3 right-3 bg-industrial-red text-white px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest">
-                                                Agotado
-                                            </div>
-                                        )}
-                                        {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
-                                            <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.2em] bg-industrial-ink text-white px-2 py-1">
-                                                {producto.categoriaNombre}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Info */}
-                                    <div className="p-4 flex flex-col flex-1">
-                                        <h2 className="font-display text-lg uppercase leading-tight mb-3 line-clamp-2">
-                                            {producto.nombre}
-                                        </h2>
-
-                                        <div className="flex items-baseline justify-between mb-4">
-                                            <span className="font-display text-2xl text-industrial-ink">
-                                                ${producto.precio}
-                                            </span>
-                                            <span className="font-mono text-[10px] uppercase tracking-widest text-industrial-ink/40">/ día</span>
+                                    <Link to={`/producto/${producto.id}`} className="cursor-pointer">
+                                        {/* Imagen */}
+                                        <div className="relative w-full aspect-square bg-industrial-bg overflow-hidden border-b-2 border-industrial-ink/15">
+                                            <img
+                                                src={producto.imagenURL || '/placeholder.png'}
+                                                className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+                                                alt={producto.nombre}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+                                                }}
+                                            />
+                                            {agotado && (
+                                                <div className="absolute top-3 right-3 bg-industrial-red text-white px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest">
+                                                    Agotado
+                                                </div>
+                                            )}
+                                            {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
+                                                <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.2em] bg-industrial-ink text-white px-2 py-1">
+                                                    {producto.categoriaNombre}
+                                                </span>
+                                            )}
                                         </div>
 
-                                        <div
-                                            className={`mt-auto w-full text-center px-2 py-3 font-mono text-xs font-bold uppercase tracking-widest border-2 flex items-center justify-center gap-2 ${
+                                        {/* Info */}
+                                        <div className="px-4 pt-4">
+                                            <h2 className="font-display text-lg uppercase leading-tight mb-3 line-clamp-2">
+                                                {producto.nombre}
+                                            </h2>
+
+                                            <div className="flex items-baseline justify-between mb-4">
+                                                <span className="font-display text-2xl text-industrial-ink">
+                                                    {formatPrecio(producto.precio ?? 0)}
+                                                </span>
+                                                <span className="font-mono text-[10px] uppercase tracking-widest text-industrial-ink/40">/ día</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+
+                                    {/* Acciones: fuera del Link para no anidar elementos interactivos */}
+                                    <div className="px-4 pb-4 mt-auto flex gap-2">
+                                        <Link
+                                            to={`/producto/${producto.id}`}
+                                            className={`flex-1 text-center px-2 py-3 font-mono text-xs font-bold uppercase tracking-widest border-2 flex items-center justify-center gap-2 transition-colors ${
                                                 disponible
-                                                    ? "bg-white text-industrial-ink border-industrial-ink group-hover:bg-industrial-yellow"
+                                                    ? "bg-white text-industrial-ink border-industrial-ink hover:bg-industrial-yellow"
                                                     : "bg-industrial-ink/5 text-industrial-ink/40 border-industrial-ink/10"
                                             }`}
                                         >
                                             <span className={`w-2 h-2 rounded-full ${disponible ? "bg-green-500" : "bg-industrial-ink/20"}`}></span>
-                                            {agotado ? 'Agotado' : producto.estado ? 'Ver detalles' : 'No disponible'}
-                                        </div>
+                                            {agotado ? 'Agotado' : producto.estado ? 'Ver' : 'No disp.'}
+                                        </Link>
+
+                                        <button
+                                            onClick={() => disponible && addToCart(producto, 1)}
+                                            disabled={!disponible}
+                                            aria-label={`Agregar ${producto.nombre} al carrito`}
+                                            className={`px-3 border-2 font-bold transition-colors ${
+                                                disponible
+                                                    ? "border-industrial-ink text-industrial-ink hover:bg-industrial-ink hover:text-white"
+                                                    : "border-industrial-ink/10 text-industrial-ink/20 cursor-not-allowed"
+                                            }`}
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </button>
                                     </div>
-                                </Link>
+                                </div>
                             );
                         })}
                     </div>

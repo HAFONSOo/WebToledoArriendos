@@ -1,18 +1,6 @@
-import { useState } from "react";
-
 const Contacto = () => {
-  const [form, setForm] = useState({ nombre: "", telefono: "", mensaje: "" });
-  const [enviado, setEnviado] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: conectar con el servicio de envío real (email / backend)
-    setEnviado(true);
-  };
+  const mapaEmbedSrc = "https://www.google.com/maps?q=-33.6121986,-70.7975046&z=15&output=embed";
+  const mapaLink = "https://maps.app.goo.gl/xP4EUoL2LFJjVVeWA";
 
   return (
     <div className="bg-industrial-bg min-h-screen font-sans text-industrial-ink">
@@ -42,23 +30,23 @@ const Contacto = () => {
               <p className="font-display text-xl mb-6 break-all">mtoledovida79@gmail.com</p>
 
               <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-white/40 mb-1">Dirección</p>
-              <p className="font-semibold">Camino lonquen norte,Paradero 14,el acacio 50a ,Calera de tango</p>
+              <p className="font-semibold">Camino Lonquén Norte, Paradero 14, El Acacio 50A, Calera de Tango</p>
             </div>
 
             <div className="border-2 border-industrial-ink/15 bg-white p-6">
               <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-industrial-ink/50 mb-3">Horario de atención</p>
               <div className="flex justify-between text-sm py-2 border-b border-industrial-ink/10">
-                <span className="font-semibold">Lunes a viernes</span>
-                <span className="font-mono text-industrial-ink/60">08:30 – 18:30</span>
+                <span className="font-semibold">Lunes a domingo</span>
+                <span className="font-mono text-industrial-ink/60">08:30 – 21:00</span>
+                
               </div>
               <div className="flex justify-between text-sm py-2 border-b border-industrial-ink/10">
-                <span className="font-semibold">Sábado</span>
-                <span className="font-mono text-industrial-ink/60">09:00 – 14:00</span>
+                <span className="font-medium">Los despachos dependeran de la disponibilidad del flete</span>
+                
+                
               </div>
-              <div className="flex justify-between text-sm py-2">
-                <span className="font-semibold">Domingo</span>
-                <span className="font-mono text-industrial-ink/40">Cerrado</span>
-              </div>
+             
+              
             </div>
 
             <a
@@ -71,77 +59,32 @@ const Contacto = () => {
             </a>
           </div>
 
-          {/* Columna derecha: formulario */}
-          <div className="lg:col-span-3 bg-white border-2 border-industrial-ink/15 p-6 md:p-8">
-            {enviado ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-16">
-                <span className="w-3 h-3 rounded-full bg-green-500 mb-4"></span>
-                <p className="font-display text-2xl uppercase mb-2">Mensaje enviado</p>
-                <p className="text-industrial-ink/60 max-w-xs">
-                  Gracias, {form.nombre || "cliente"}. Nuestro equipo te contactará a la brevedad.
-                </p>
-                <button
-                  onClick={() => { setEnviado(false); setForm({ nombre: "", telefono: "", mensaje: "" }); }}
-                  className="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-industrial-ink/50 hover:text-industrial-ink underline"
-                >
-                  Enviar otro mensaje
-                </button>
+          {/* Columna derecha: ubicación en Google Maps */}
+          <div className="lg:col-span-3 bg-white border-2 border-industrial-ink/15 flex flex-col overflow-hidden">
+            <div className="p-6 md:p-8 pb-4 flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-industrial-ink/50 mb-1">Encuéntranos</p>
+                <p className="font-display text-2xl uppercase leading-none">Toledo Arriendos</p>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                <div>
-                  <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-industrial-ink/50 block mb-2">
-                    Nombre
-                  </label>
-                  <input
-                    type="text"
-                    name="nombre"
-                    value={form.nombre}
-                    onChange={handleChange}
-                    required
-                    placeholder="Tu nombre"
-                    className="w-full px-4 py-3 border-2 border-industrial-ink/15 focus:outline-none focus:border-industrial-yellow transition-colors bg-industrial-bg"
-                  />
-                </div>
+              <a
+                href={mapaLink}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-industrial-ink text-white font-bold uppercase tracking-wider text-xs hover:bg-industrial-yellow hover:text-industrial-ink transition-colors"
+              >
+                Cómo llegar
+              </a>
+            </div>
 
-                <div>
-                  <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-industrial-ink/50 block mb-2">
-                    Teléfono
-                  </label>
-                  <input
-                    type="tel"
-                    name="telefono"
-                    value={form.telefono}
-                    onChange={handleChange}
-                    required
-                    placeholder="+56 9 0000 0000"
-                    className="w-full px-4 py-3 border-2 border-industrial-ink/15 focus:outline-none focus:border-industrial-yellow transition-colors bg-industrial-bg"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-industrial-ink/50 block mb-2">
-                    ¿Qué equipo necesitas?
-                  </label>
-                  <textarea
-                    name="mensaje"
-                    value={form.mensaje}
-                    onChange={handleChange}
-                    required
-                    rows={5}
-                    placeholder="Cuéntanos qué equipo, por cuántos días y desde cuándo lo necesitas"
-                    className="w-full px-4 py-3 border-2 border-industrial-ink/15 focus:outline-none focus:border-industrial-yellow transition-colors bg-industrial-bg resize-none"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="mt-2 bg-industrial-ink text-white py-4 font-bold uppercase tracking-wider text-sm hover:bg-industrial-yellow hover:text-industrial-ink transition-colors"
-                >
-                  Enviar mensaje
-                </button>
-              </form>
-            )}
+            <div className="w-full aspect-[4/3] md:aspect-video border-t-2 border-industrial-ink/10">
+              <iframe
+                src={mapaEmbedSrc}
+                title="Ubicación de Toledo Arriendos en Google Maps"
+                className="w-full h-full border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
           </div>
         </div>
       </div>

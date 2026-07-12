@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { Productos } from "./card.type"; // Ajusta si tu interfaz se llama "Producto" o "Productos"
 import { getProductos } from "../services/weback";
+import { formatPrecio } from "./format";
+import { useCart } from "./CartContext";
+import CartDrawer from "./CartDrawer";
 
 const NavBar: React.FC = () => {
   const [query, setQuery] = useState<string>('');
@@ -10,6 +13,8 @@ const NavBar: React.FC = () => {
   const [allproductos, setAllproductos] = useState<Productos[]>([]);
   const [menuAbierto, setMenuAbierto] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [carritoAbierto, setCarritoAbierto] = useState<boolean>(false);
+  const { totalItems } = useCart();
 
   // 2. Inicializamos useNavigate
   const navigate = useNavigate();
@@ -36,19 +41,45 @@ const NavBar: React.FC = () => {
     fetchProductos();
   }, []);
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setQuery(value);
+  // Quita tildes/diacríticos y normaliza a minúsculas para comparar sin errores
+  // por acentos (ej: "excavadora" encuentra "Excavadora" y "compresion" encuentra "Compresión")
+  const normalizar = (texto: string) =>
+    texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
 
-    if (value === '') {
-      setFiltroProductos([]);
-    } else {
-      const resultado = allproductos.filter((producto) =>
-        producto.nombre.toLowerCase().includes(value.toLowerCase())
-      );
-      setFiltroProductos(resultado);
-    }
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value);
   };
+
+  // Filtra con debounce: espera a que la persona deje de tipear antes de
+  // recalcular, busca por nombre Y categoría, soporta varias palabras en
+  // cualquier orden ("taladro inalambrico") y limita la lista a 8 resultados
+  useEffect(() => {
+    const queryNormalizada = normalizar(query);
+
+    if (!queryNormalizada) {
+      setFiltroProductos([]);
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      const terminos = queryNormalizada.split(/\s+/).filter(Boolean);
+
+      const resultado = allproductos
+        .filter((producto) => {
+          const textoProducto = normalizar(`${producto.nombre} ${producto.categoriaNombre ?? ""}`);
+          return terminos.every((termino) => textoProducto.includes(termino));
+        })
+        .slice(0, 8);
+
+      setFiltroProductos(resultado);
+    }, 250);
+
+    return () => clearTimeout(timeoutId);
+  }, [query, allproductos]);
 
   // 3. Actualizamos la función de clic para navegar
   const handleProductoClick = (producto: Productos) => {
@@ -119,7 +150,7 @@ const NavBar: React.FC = () => {
                       <div className="flex-1">
                         <p className="font-semibold text-sm text-industrial-ink">{producto.nombre}</p>
                         {producto.precio && (
-                          <p className="font-mono text-xs text-industrial-ink/50">${producto.precio} / día</p>
+                          <p className="font-mono text-xs text-industrial-ink/50">${formatPrecio(producto.precio)} / día</p>
                         )}
                       </div>
                       <span className={`inline-flex items-center gap-1.5 px-2 py-1 font-mono text-[10px] uppercase tracking-widest ${
@@ -165,6 +196,22 @@ const NavBar: React.FC = () => {
               Feedback
             </a>
           </div>
+
+          {/* Carrito (siempre visible) */}
+          <button
+            onClick={() => setCarritoAbierto(true)}
+            aria-label="Ver carrito"
+            className="relative p-2 hover:bg-white/10 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            {totalItems > 0 && (
+              <span className="absolute -top-1 -right-1 bg-industrial-yellow text-industrial-ink text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-industrial-ink">
+                {totalItems}
+              </span>
+            )}
+          </button>
 
           {/* Botón menú hamburguesa - Mobile */}
           <button
@@ -240,7 +287,7 @@ const NavBar: React.FC = () => {
                         <div className="flex-1">
                           <p className="font-semibold text-industrial-ink text-sm">{producto.nombre}</p>
                           {producto.precio && (
-                            <p className="font-mono text-xs text-industrial-ink/50">${producto.precio} / día</p>
+                            <p className="font-mono text-xs text-industrial-ink/50">${formatPrecio(producto.precio)} / día</p>
                           )}
                         </div>
                       </div>
@@ -283,6 +330,8 @@ const NavBar: React.FC = () => {
           </div>
         </div>
       )}
+
+      <CartDrawer isOpen={carritoAbierto} onClose={() => setCarritoAbierto(false)} />
     </nav>
   );
 };

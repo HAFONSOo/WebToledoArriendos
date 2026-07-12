@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { Productos } from "./card.type";
 import { getProductos } from "../services/weback";
+import { formatPrecio } from "./format";
+import { useCart } from "./CartContext";
 
 export default function ProductoDetalle() {
     const { id } = useParams<{ id: string }>();
@@ -10,6 +12,9 @@ export default function ProductoDetalle() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [imgLoaded, setImgLoaded] = useState(false);
+    const [cantidad, setCantidad] = useState(1);
+    const [agregado, setAgregado] = useState(false);
+    const { addToCart } = useCart();
 
     useEffect(() => {
         async function fetchProducto() {
@@ -73,11 +78,19 @@ export default function ProductoDetalle() {
     }
 
     const whatsappNumero = "56952206431";
-    const whatsappMensaje = `Hola, quiero arrendar el equipo "${producto.nombre}"). ¿Está disponible?`;
+    const whatsappMensaje = `Hola, quiero arrendar el equipo "${producto.nombre}" (código ${String(producto.id).padStart(4, '0')})${cantidad > 1 ? ` — cantidad: ${cantidad}` : ''}. ¿Está disponible?`;
     const whatsappLink = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(whatsappMensaje)}`;
 
+    const stock = producto.cantidad ?? Infinity;
+
+    const handleAgregarCarrito = () => {
+        addToCart(producto, cantidad);
+        setAgregado(true);
+        setTimeout(() => setAgregado(false), 2000);
+    };
+
     return (
-        <div className="bg-industrial-bg min-h-screen w-full font-sans text-industrial-ink pb-28 md:pb-0">
+        <div className="bg-industrial-bg min-h-screen w-full font-sans text-industrial-ink">
             {/* Fuentes: agrégalas una vez en tu index.html o vía @import global,
                 no hace falta repetirlas en cada componente. Ver tailwind.config.js
                 para el mapeo font-display / font-mono / font-sans. */}
@@ -167,7 +180,7 @@ export default function ProductoDetalle() {
                         <div className="bg-industrial-yellow border-2 border-industrial-ink px-6 py-5 flex-1">
                             <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-industrial-ink/70 mb-1">Valor de arriendo</p>
                             <p className="font-display text-4xl md:text-5xl">
-                                ${producto.precio}
+                                ${formatPrecio(producto.precio)}
                                 <span className="text-base font-sans font-semibold align-middle ml-1">/ día</span>
                             </p>
                         </div>
@@ -181,69 +194,42 @@ export default function ProductoDetalle() {
                         </div>
                     </div>
 
-                    {/* CTA principal (desktop) */}
+                    {/* Selector de cantidad */}
                     {producto.estado ? (
-                        <a
-                            href={whatsappLink}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="hidden md:inline-flex w-full items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm transition-colors mb-10 bg-industrial-ink text-white hover:bg-industrial-yellow hover:text-industrial-ink"
-                        >
-                            Reservar por WhatsApp
-                        </a>
+                        <>
+
+                            {/* Dos acciones, mismo peso visual */}
+                            <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                                <button
+                                    onClick={handleAgregarCarrito}
+                                    className={`flex-1 inline-flex items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm transition-colors ${
+                                        agregado
+                                            ? "bg-green-600 text-white"
+                                            : "bg-industrial-ink text-white hover:bg-industrial-yellow hover:text-industrial-ink"
+                                    }`}
+                                >
+                                    {agregado ? "Agregado ✓" : "Agregar al carrito"}
+                                </button>
+
+                                <a
+                                    href={whatsappLink}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="flex-1 inline-flex items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm transition-colors bg-white border-2 border-industrial-ink text-industrial-ink hover:bg-industrial-yellow hover:border-industrial-yellow"
+                                >
+                                    Reservar solo este
+                                </a>
+                            </div>
+                        </>
                     ) : (
                         <button
                             disabled
-                            className="hidden md:inline-flex w-full items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm mb-10 bg-industrial-ink/10 text-industrial-ink/40 cursor-not-allowed"
+                            className="inline-flex w-full items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm mt-auto bg-industrial-ink/10 text-industrial-ink/40 cursor-not-allowed"
                         >
                             Equipo no disponible
                         </button>
                     )}
-
-                    {/* QR estilo etiqueta de bodega: escanea y cae directo al chat de WhatsApp */}
-                    <a
-                        href={whatsappLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="group mt-auto flex items-center gap-4 border-t-2 border-dashed border-industrial-ink/20 pt-6 hover:border-industrial-yellow transition-colors"
-                    >
-                        <div className="bg-white border-2 border-industrial-ink/15 p-2 shrink-0 group-hover:border-industrial-yellow transition-colors">
-                            <img
-                                src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(whatsappLink)}`}
-                                alt={`Escanear para reservar ${producto.nombre} por WhatsApp`}
-                                className="w-24 h-24 object-contain"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-1">
-                            <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-industrial-ink/50">Etiqueta digital</span>
-                            <span className="font-semibold text-sm max-w-[220px] group-hover:text-industrial-ink">
-                                Escanea o toca el código para reservar este equipo por WhatsApp
-                            </span>
-                        </div>
-                    </a>
                 </div>
-            </div>
-
-            {/* Barra inferior fija (mobile) */}
-            <div className="fixed bottom-0 left-0 right-0 md:hidden bg-industrial-ink text-white px-5 py-4 flex items-center justify-between z-30 border-t-4 border-industrial-yellow">
-                <div>
-                    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/50">Por día</p>
-                    <p className="font-display text-2xl">${producto.precio}</p>
-                </div>
-                {producto.estado ? (
-                    <a
-                        href={whatsappLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-6 py-3 font-bold uppercase tracking-wider text-sm bg-industrial-yellow text-industrial-ink"
-                    >
-                        Reservar
-                    </a>
-                ) : (
-                    <button disabled className="px-6 py-3 font-bold uppercase tracking-wider text-sm bg-white/10 text-white/30">
-                        No disponible
-                    </button>
-                )}
             </div>
         </div>
     );
