@@ -1,9 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NavBar from "./assets/componentes/nav";
-import Cardlist from "./assets/componentes/Cardlist";
+import Cardlist from "./assets/componentes/Carrito/Cardlist";
 import Contacto from "./assets/componentes/contacto";
 import ProductoDetalle from "./assets/componentes/ProductoDetalle";
-import { CartProvider } from "./assets/componentes/CartContext";
+import Login from "./assets/componentes/Login/login";
+import { CartProvider } from "./assets/componentes/Carrito/CartContext";
+import RutaAdmin from "./assets/componentes/Admin/RutaAdmin";
+import PanelAdmin from "./assets/componentes/Admin/PanelAdmin";
 
 const App = () => {
   return (
@@ -17,6 +20,7 @@ const App = () => {
           <Routes>
             {/* Ruta principal - Catálogo */}
             <Route path="/" element={<Cardlist />} />
+            <Route path="/login" element={<Login />} />
 
             {/* Ruta de contacto */}
             <Route path="/contacto" element={<Contacto />} />
@@ -26,6 +30,14 @@ const App = () => {
 
             {/* Ruta para catálogo explícito */}
             <Route path="/catalogo" element={<Cardlist />} />
+            <Route 
+              path="/admin" 
+              element={
+                <RutaAdmin>
+                  <PanelAdmin />
+                </RutaAdmin>
+              } 
+            />
           </Routes>
         </div>
       </CartProvider>

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import type { Productos } from "./card.type";
+import type { Productos } from "./Carrito/card.type";
 import { getProductos } from "../services/weback";
 import { formatPrecio } from "./format";
-import { useCart } from "./CartContext";
+import { useCart } from "./Carrito/CartContext";
 
 export default function ProductoDetalle() {
     const { id } = useParams<{ id: string }>();
@@ -78,7 +78,7 @@ export default function ProductoDetalle() {
     }
 
     const whatsappNumero = "56952206431";
-    const whatsappMensaje = `Hola, quiero arrendar el equipo "${producto.nombre}" (código ${String(producto.id).padStart(4, '0')})${cantidad > 1 ? ` — cantidad: ${cantidad}` : ''}. ¿Está disponible?`;
+    const whatsappMensaje = `Hola, quiero arrendar el equipo "${producto.nombre}" ${cantidad > 1 ? ` — cantidad: ${cantidad}` : ''}. ¿Está disponible?`;
     const whatsappLink = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(whatsappMensaje)}`;
 
     

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 // 1. Importamos useNavigate
 import { Link, useNavigate } from "react-router-dom";
-import type { Productos } from "./card.type"; // Ajusta si tu interfaz se llama "Producto" o "Productos"
+import type { Productos } from "./Carrito/card.type"; // Ajusta si tu interfaz se llama "Producto" o "Productos"
 import { getProductos } from "../services/weback";
 import { formatPrecio } from "./format";
-import { useCart } from "./CartContext";
-import CartDrawer from "./CartDrawer";
+import { useCart } from "./Carrito/CartContext";
+import CartDrawer from "./Carrito/CartDrawer";
 
 const NavBar: React.FC = () => {
   const [query, setQuery] = useState<string>('');

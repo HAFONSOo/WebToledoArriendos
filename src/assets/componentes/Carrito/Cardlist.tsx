@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Productos } from "./card.type";
-import { getProductos } from "../services/weback";
+import { getProductos } from "../../services/weback";
 import { Link } from "react-router-dom";
 // Local fallback for price formatting to avoid missing module import
 function formatPrecio(valor: number | string) {
