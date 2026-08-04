@@ -13,6 +13,7 @@ function formatPrecio(valor: number | string) {
     }
 }
 import { useCart } from "./CartContext";
+import { getImagenPrincipal } from "./producto.utils";
 
 export default function Cardlist() {
     const [productos, setProductos] = useState<Productos[]>([]);
@@ -234,11 +235,11 @@ export default function Cardlist() {
                                         {/* Imagen */}
                                         <div className="relative w-full aspect-square bg-industrial-bg overflow-hidden border-b-2 border-industrial-ink/15">
                                             <img
-                                                src={producto.imagenURL || '/placeholder.png'}
+                                                src={getImagenPrincipal(producto)}
                                                 className="w-full h-full object-contain p-4 transition-transform duration-300 group-hover:scale-105"
                                                 alt={producto.nombre}
                                                 onError={(e) => {
-                                                    e.currentTarget.src = 'https://via.placeholder.com/300x200?text=Sin+Imagen';
+                                                    e.currentTarget.src = '';
                                                 }}
                                             />
                                             {agotado && (

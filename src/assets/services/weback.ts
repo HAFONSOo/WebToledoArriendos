@@ -1,5 +1,11 @@
 import supabase from "../services/supabaseClient";
 
+interface ProductoImagen {
+  id: number;
+  url: string;
+  orden: number;
+}
+
 interface Producto {
   id: string;
   nombre: string;
@@ -7,8 +13,9 @@ interface Producto {
   precio: number;
   cantidad: number;
   estado: string;
-  imagenURL: string;
+  imagenURL: string | null;
   idCategoria: string;
+  producto_imagenes?: ProductoImagen[];
 }
 
 interface Categoria {
@@ -18,9 +25,13 @@ interface Categoria {
 
 async function getProductos() {
   // Solo obtener productos primero
-  const { data: productos, error: errorProductos } = await supabase
-    .from("Productos")
-    .select("id, nombre, descripcion, precio, cantidad, estado, imagenURL, idCategoria") as { data: Producto[] | null; error: any };
+ const { data: productos, error: errorProductos } = (await supabase
+  .from("Productos")
+  .select(`*, producto_imagenes ( id, url, orden )`)
+  .order("orden", { referencedTable: "producto_imagenes", ascending: true })) as {
+  data: Producto[] | null;
+  error: any;
+};
  
   if (errorProductos) {
     console.error("Error productos:", errorProductos);

@@ -1,5 +1,6 @@
 import { useCart } from "./CartContext";
 import { buildWhatsappMensajeCarrito } from "./cart.utils";
+import { getImagenPrincipal } from "./producto.utils";
 
 // Local fallback for formatting price to avoid missing-module errors.
 function formatPrecio(value: number | string | null | undefined): string {
@@ -70,11 +71,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                     className="flex gap-4 px-6 py-5 border-b border-industrial-ink/10"
                   >
                     <img
-                      src={producto.imagenURL || "/placeholder.png"}
+                      src={getImagenPrincipal(producto)}
                       alt={producto.nombre}
                       className="w-20 h-20 object-contain bg-white border-2 border-industrial-ink/15 p-1 shrink-0"
                       onError={(e) => {
-                        e.currentTarget.src = "https://via.placeholder.com/100x100?text=Sin+Imagen";
+                        e.currentTarget.src = "";
                       }}
                     />
 

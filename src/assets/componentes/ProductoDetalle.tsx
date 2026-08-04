@@ -4,6 +4,7 @@ import type { Productos } from "./Carrito/card.type";
 import { getProductos } from "../services/weback";
 import { formatPrecio } from "./format";
 import { useCart } from "./Carrito/CartContext";
+import { getImagenPrincipal } from "./Carrito/producto.utils";
 
 export default function ProductoDetalle() {
     const { id } = useParams<{ id: string }>();
@@ -89,6 +90,8 @@ export default function ProductoDetalle() {
         setTimeout(() => setAgregado(false), 2000);
     };
 
+    const imageUrl = getImagenPrincipal(producto);
+
     return (
         <div className="bg-industrial-bg min-h-screen w-full font-sans text-industrial-ink">
             {/* Fuentes: agrégalas una vez en tu index.html o vía @import global,
@@ -127,11 +130,11 @@ export default function ProductoDetalle() {
                             <div className="absolute inset-0 animate-pulse bg-industrial-ink/5"></div>
                         )}
                         <img
-                            src={producto.imagenURL || '/placeholder.png'}
+                            src={imageUrl}
                             alt={producto.nombre}
                             onLoad={() => setImgLoaded(true)}
                             className="max-w-[80%] max-h-[80%] object-contain drop-shadow-xl transition-transform duration-500 ease-out group-hover:scale-105"
-                            onError={(e) => { e.currentTarget.src = 'https://via.placeholder.com/500x500?text=Sin+Imagen'; }}
+                            onError={(e) => { e.currentTarget.src = '/placeholder.png'; }}
                         />
 
                         <span className="absolute top-4 left-4 font-mono text-[10px] uppercase tracking-[0.2em] bg-industrial-ink text-white px-2 py-1">
