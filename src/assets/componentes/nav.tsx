@@ -181,9 +181,9 @@ const NavBar: React.FC = () => {
               <Link 
                 to="/login" 
                 title="Panel de Control"
-                className="font-mono text-xs uppercase tracking-[0.2em] text-white/80 hover:text-industrial-yellow transition-colors"
+                className="font-mono text-xs text-black "
               >
-                admin
+              admin
                 
   
                 
