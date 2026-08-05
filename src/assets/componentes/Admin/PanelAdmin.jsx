@@ -148,12 +148,13 @@ const alternarEstadoProducto = async (producto) => {
     const nombre = formdata.get('nombre');
     const descripcion = formdata.get('descripcion');
     const precio = Number(formdata.get('precio'));
+    const cantidad=1
     const idCategoria = formdata.get('idCategoria');
     const archivos = formdata.getAll('imagenes').filter((f) => f.size > 0);
 
     const { data: nuevoProducto, error: errorInsert } = await supabase
       .from('Productos')
-      .insert({ nombre, precio, descripcion, estado: true, idCategoria })
+      .insert({ nombre, precio, descripcion, estado: true, idCategoria,cantidad })
       .select()
       .single();
 

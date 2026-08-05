@@ -242,11 +242,9 @@ export default function Cardlist() {
                                                     e.currentTarget.src = '';
                                                 }}
                                             />
-                                            {agotado && (
-                                                <div className="absolute top-3 right-3 bg-industrial-red text-white px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest">
-                                                    Agotado
-                                                </div>
-                                            )}
+                                    
+                                                
+                                            
                                             {producto.categoriaNombre && producto.categoriaNombre !== "Sin categoría" && (
                                                 <span className="absolute top-3 left-3 font-mono text-[10px] uppercase tracking-[0.2em] bg-industrial-ink text-white px-2 py-1">
                                                     {producto.categoriaNombre}
