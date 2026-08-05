@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import type { Productos } from "./Carrito/card.type";
+import type { Productos, ProductoImagen } from "./Carrito/card.type";
 import { getProductos } from "../services/weback";
 import { formatPrecio } from "./format";
 import { useCart } from "./Carrito/CartContext";
 import { getImagenPrincipal } from "./Carrito/producto.utils";
 
+type ProductoConImagenes = Productos & { producto_imagenes?: ProductoImagen[] };
+
 export default function ProductoDetalle() {
     const { id } = useParams<{ id: string }>();
 
-    const [producto, setProducto] = useState<Productos | null>(null);
+    const [producto, setProducto] = useState<ProductoConImagenes | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [imgLoaded, setImgLoaded] = useState(false);
+    const [imagenIndex, setImagenIndex] = useState(0);
     const [cantidad] = useState(1);
     const [agregado, setAgregado] = useState(false);
     const { addToCart } = useCart();
@@ -23,7 +26,6 @@ export default function ProductoDetalle() {
                 setLoading(true);
                 const data = await getProductos();
 
-                // CORRECCIÓN: Forzamos ambos IDs a String para asegurar que coincidan sin importar cómo vengan de la BD
                 const productoEncontrado = data.find((p: any) => String(p.id) === String(id));
 
                 if (productoEncontrado) {
@@ -31,11 +33,11 @@ export default function ProductoDetalle() {
                         ? productoEncontrado.estado
                         : String(productoEncontrado.estado).toLowerCase() === 'true';
 
-                    const productoFormateado: Productos = {
+                    const productoFormateado: ProductoConImagenes = {
                         ...productoEncontrado,
                         id: Number(productoEncontrado.id),
                         idCategoria: Number(productoEncontrado.idCategoria),
-                        estado: estadoBooleano
+                        estado: estadoBooleano,
                     };
                     setProducto(productoFormateado);
                 } else {
@@ -82,26 +84,36 @@ export default function ProductoDetalle() {
     const whatsappMensaje = `Hola, quiero arrendar el equipo "${producto.nombre}" ${cantidad > 1 ? ` — cantidad: ${cantidad}` : ''}. ¿Está disponible?`;
     const whatsappLink = `https://wa.me/${whatsappNumero}?text=${encodeURIComponent(whatsappMensaje)}`;
 
-    
-
     const handleAgregarCarrito = () => {
         addToCart(producto, cantidad);
         setAgregado(true);
         setTimeout(() => setAgregado(false), 2000);
     };
 
-    const imageUrl = getImagenPrincipal(producto);
+    // Array de imágenes ordenado; si no hay producto_imagenes, cae al comportamiento anterior (una sola imagen)
+    const imagenesOrdenadas = producto.producto_imagenes && producto.producto_imagenes.length > 0
+        ? [...producto.producto_imagenes].sort((a, b) => a.orden - b.orden)
+        : [{ id: 0, url: getImagenPrincipal(producto), orden: 0 }];
+
+    const totalImagenes = imagenesOrdenadas.length;
+    const imagenActual = imagenesOrdenadas[imagenIndex]?.url ?? imagenesOrdenadas[0].url;
+
+    const irAImagenAnterior = () => {
+        setImgLoaded(false);
+        setImagenIndex((prev) => (prev === 0 ? totalImagenes - 1 : prev - 1));
+    };
+
+    const irAImagenSiguiente = () => {
+        setImgLoaded(false);
+        setImagenIndex((prev) => (prev === totalImagenes - 1 ? 0 : prev + 1));
+    };
 
     return (
         <div className="bg-industrial-bg min-h-screen w-full font-sans text-industrial-ink">
-            {/* Fuentes: agrégalas una vez en tu index.html o vía @import global,
-                no hace falta repetirlas en cada componente. Ver tailwind.config.js
-                para el mapeo font-display / font-mono / font-sans. */}
             <style>{`
                 .rivet { position: absolute; width: 8px; height: 8px; border-radius: 9999px; background: radial-gradient(circle at 35% 30%, #9a9488, #5b564c); }
             `}</style>
 
-            {/* Barra superior: breadcrumb */}
             <div className="w-full border-b-2 border-industrial-ink/10 bg-industrial-bg/95 backdrop-blur sticky top-0 z-20">
                 <div className="max-w-7xl mx-auto px-6 md:px-10 py-4 flex items-center justify-between">
                     <Link to="/" className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-industrial-ink/70 hover:text-industrial-ink transition-colors">
@@ -114,13 +126,10 @@ export default function ProductoDetalle() {
                 </div>
             </div>
 
-            {/* Contenedor Principal */}
             <div className="max-w-7xl mx-auto w-full flex flex-col lg:flex-row gap-10 lg:gap-16 px-6 md:px-10 pt-8 md:pt-12">
 
-                {/* Columna Izquierda: Imagen */}
                 <div className="w-full lg:w-1/2">
                     <div className="relative bg-white border-2 border-industrial-ink/15 aspect-square flex items-center justify-center overflow-hidden group">
-                        {/* Remaches decorativos en las esquinas, estilo placa de maquinaria */}
                         <span className="rivet" style={{ top: 10, left: 10 }}></span>
                         <span className="rivet" style={{ top: 10, right: 10 }}></span>
                         <span className="rivet" style={{ bottom: 10, left: 10 }}></span>
@@ -130,7 +139,7 @@ export default function ProductoDetalle() {
                             <div className="absolute inset-0 animate-pulse bg-industrial-ink/5"></div>
                         )}
                         <img
-                            src={imageUrl}
+                            src={imagenActual}
                             alt={producto.nombre}
                             onLoad={() => setImgLoaded(true)}
                             className="max-w-[80%] max-h-[80%] object-contain drop-shadow-xl transition-transform duration-500 ease-out group-hover:scale-105"
@@ -138,11 +147,47 @@ export default function ProductoDetalle() {
                         />
 
                         <span className="absolute top-4 left-4 font-mono text-[10px] uppercase tracking-[0.2em] bg-industrial-ink text-white px-2 py-1">
-                            Vista 01/01
+                            Vista {String(imagenIndex + 1).padStart(2, '0')}/{String(totalImagenes).padStart(2, '0')}
                         </span>
+
+                        {/* Flechas de navegación, solo si hay más de una imagen */}
+                        {totalImagenes > 1 && (
+                            <>
+                                <button
+                                    onClick={irAImagenAnterior}
+                                    aria-label="Imagen anterior"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-industrial-ink/80 text-white hover:bg-industrial-ink transition-colors"
+                                >
+                                    &larr;
+                                </button>
+                                <button
+                                    onClick={irAImagenSiguiente}
+                                    aria-label="Imagen siguiente"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center bg-industrial-ink/80 text-white hover:bg-industrial-ink transition-colors"
+                                >
+                                    &rarr;
+                                </button>
+                            </>
+                        )}
                     </div>
 
-                    {/* Placa técnica estilo maquinaria */}
+                    {/* Miniaturas, solo si hay más de una imagen */}
+                    {totalImagenes > 1 && (
+                        <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                            {imagenesOrdenadas.map((img, idx) => (
+                                <button
+                                    key={img.id}
+                                    onClick={() => { setImgLoaded(false); setImagenIndex(idx); }}
+                                    className={`shrink-0 w-16 h-16 border-2 overflow-hidden transition-colors ${
+                                        idx === imagenIndex ? "border-industrial-yellow" : "border-industrial-ink/15 hover:border-industrial-ink/40"
+                                    }`}
+                                >
+                                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
                     <div className="mt-4 bg-industrial-ink text-white px-5 py-4 flex items-center justify-between font-mono text-xs uppercase tracking-widest relative">
                         <span className="rivet" style={{ top: '50%', left: 8, transform: 'translateY(-50%)' }}></span>
                         <span className="rivet" style={{ top: '50%', right: 8, transform: 'translateY(-50%)' }}></span>
@@ -163,9 +208,7 @@ export default function ProductoDetalle() {
                     </div>
                 </div>
 
-                {/* Columna Derecha: Detalles */}
                 <div className="w-full lg:w-1/2 flex flex-col">
-
                     <span className="font-mono text-xs uppercase tracking-[0.3em] text-industrial-yellow bg-industrial-ink inline-block w-fit px-3 py-1 mb-4">
                         Equipo de arriendo
                     </span>
@@ -178,7 +221,6 @@ export default function ProductoDetalle() {
                         {producto.descripcion}
                     </p>
 
-                    {/* Precio y disponibilidad */}
                     <div className="flex flex-col sm:flex-row gap-4 mb-8">
                         <div className="bg-industrial-yellow border-2 border-industrial-ink px-6 py-5 flex-1">
                             <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-industrial-ink/70 mb-1">Valor de arriendo</p>
@@ -197,33 +239,28 @@ export default function ProductoDetalle() {
                         </div>
                     </div>
 
-                    {/* Selector de cantidad */}
                     {producto.estado ? (
-                        <>
+                        <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                            <button
+                                onClick={handleAgregarCarrito}
+                                className={`flex-1 inline-flex items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm transition-colors ${
+                                    agregado
+                                        ? "bg-green-600 text-white"
+                                        : "bg-industrial-ink text-white hover:bg-industrial-yellow hover:text-industrial-ink"
+                                }`}
+                            >
+                                {agregado ? "Agregado ✓" : "Agregar al carrito"}
+                            </button>
 
-                            {/* Dos acciones, mismo peso visual */}
-                            <div className="flex flex-col sm:flex-row gap-3 mt-auto">
-                                <button
-                                    onClick={handleAgregarCarrito}
-                                    className={`flex-1 inline-flex items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm transition-colors ${
-                                        agregado
-                                            ? "bg-green-600 text-white"
-                                            : "bg-industrial-ink text-white hover:bg-industrial-yellow hover:text-industrial-ink"
-                                    }`}
-                                >
-                                    {agregado ? "Agregado ✓" : "Agregar al carrito"}
-                                </button>
-
-                                <a
-                                    href={whatsappLink}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="flex-1 inline-flex items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm transition-colors bg-white border-2 border-industrial-ink text-industrial-ink hover:bg-industrial-yellow hover:border-industrial-yellow"
-                                >
-                                    Reservar solo este
-                                </a>
-                            </div>
-                        </>
+                            <a
+                                href={whatsappLink}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 inline-flex items-center justify-center gap-3 py-5 font-bold uppercase tracking-[0.15em] text-sm transition-colors bg-white border-2 border-industrial-ink text-industrial-ink hover:bg-industrial-yellow hover:border-industrial-yellow"
+                            >
+                                Reservar solo este
+                            </a>
+                        </div>
                     ) : (
                         <button
                             disabled

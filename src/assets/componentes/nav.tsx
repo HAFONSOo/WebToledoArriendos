@@ -177,6 +177,19 @@ const NavBar: React.FC = () => {
 
           {/* Links de navegación - Desktop */}
           <div className="hidden md:flex items-center gap-6">
+              
+              <Link 
+                to="/login" 
+                title="Panel de Control"
+                className="font-mono text-xs uppercase tracking-[0.2em] text-white/80 hover:text-industrial-yellow transition-colors"
+              >
+                admin
+                
+  
+                
+              </Link>
+
+
             <Link
               to="/"
               className="font-mono text-xs uppercase tracking-[0.2em] text-white/80 hover:text-industrial-yellow transition-colors"
